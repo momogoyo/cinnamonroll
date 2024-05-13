@@ -4,9 +4,51 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cinnamon roll</title>
+
+    <style>
+      .cinnamon {
+        position: relative;
+        width: 400px;
+        padding: 0 0.5rem 0 0;
+        aspect-ratio: 3 / 4;
+        resize: both;
+        overflow: hidden;
+      }
+      
+      .scroller {
+        height: 100%;
+        width: 100%;
+        overflow: auto;
+        background: hsl(180 0% 33%);
+        border-radius: calc(20 * 1px);
+        display: grid;
+        grid-auto-flow: row;
+        gap: 1rem;
+        scroll-behavior: smooth;
+      }
+
+      .content {
+        background-color: #F1F1F1;
+        border: 2px solid #2A2A2A;
+        height: calc(300px * 0.75);
+        width: 100%;
+        border-radius: calc(20 * 1px);
+        scroll-snap-align: center;
+      }
+    </style>
   </head>
+
   <body>
-    <div id="cinnamon"></div>
+    <div id="app">
+      <div id="cinnamon" class="cinnamon">
+        <div class="scroller">
+          <div class="content"></div>
+          <div class="content"></div>
+          <div class="content"></div>
+          <div class="content"></div>
+        </div>
+      </div>
+    </div>
 
     <script type="module" src="/src/main.ts"></script>
   </body>

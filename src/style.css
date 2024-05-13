@@ -7,7 +7,11 @@
 body {
   min-width: 320px;
   min-height: 100vh;
-  background: hsl(0 0% 2%);
+  background-color: #acacac;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 h1 {
@@ -15,6 +19,8 @@ h1 {
   line-height: 1.1;
 }
 
-#cinnamon {
-	position: relative;
+#app {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
