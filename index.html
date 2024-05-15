@@ -6,6 +6,25 @@
     <title>Cinnamon roll</title>
 
     <style>
+      :root {
+        --stroke-width: 7;
+        --track-length: 413;
+        --track-start: 39;
+        --start: 199;
+        --destination: 454;
+        --radius: 20;
+        --thumb-size: 80;
+        --bar-alpha: 0.75;
+        --track-alpha: 0;
+        
+        --size: 300px;
+        --padding: 100;
+        --bg: hsl(180 0% 33%);
+        --bar: hsl(0 0% 100% / 0.5);
+        --panel: #F1F1F1;
+        timeline-scope: --scroller;
+      }
+
       .cinnamon {
         position: relative;
         width: 400px;
@@ -14,39 +33,99 @@
         resize: both;
         overflow: hidden;
       }
+
+      /* svg */
+      .scrollbar {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0.5rem;
+        height: 100%;
+        width: calc(var(--radius) * 2px);
+        overflow: visible !important;
+        pointer-events: none;
+      }
+
+      .scrollbar path {
+        stroke-width: calc(var(--strock-width) * 1px);
+      }
+
+      .scrollbar-thumb {
+        stroke: hsl(0 0% 100% / var(--bar-alpha, 0.5));
+        stroke-dasharray: var(--thumb-size) var(--track-length);
+      }
+
+      .scrollbar-track {
+        stroke: hsl(0 0% 100% / var(--track-alpha, 0));
+      }
+
+      .scrollbar-thumb, .scrollbar-track {
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      [data-rounded-scroll] .cinnamon :is(.scrollbar-thumb, .scrollbar-track) {
+        opacity: 1;
+      }
+
+      [data-rounded-scroll] .cinnamon .scroller::-webkit-scrollbar {
+        display: none;
+      }
+
+      [data-rounded-scroll] .cinnamon .scroller {
+        scrollbar-width: 0;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
       
       .scroller {
         height: 100%;
         width: 100%;
         overflow: auto;
-        background: hsl(180 0% 33%);
-        border-radius: calc(20 * 1px);
+        background-color: var(--bg);
+        border-radius: calc(var(--radius) * 1px);
         display: grid;
         grid-auto-flow: row;
         gap: 1rem;
+        margin: 0;
+        padding: calc(var(--padding) * 1px) 0;
+        scroll-snap-type: y mandatory; /* y축에 대한 스크롤 스냅을 설정하고 스크롤이 끝나면 항상 가장 가까운 스냅 포인트에서 정지 */
+        scroll-timeline: --scroller; /* --scroller라는 이름의 스크롤 타임라인을 설정. 스크롤 위치에 따라 특정 애니메이션이 진행되도록 한다. */
         scroll-behavior: smooth;
       }
 
       .content {
-        background-color: #F1F1F1;
+        background-color: var(--panel);
         border: 2px solid #2A2A2A;
-        height: calc(300px * 0.75);
+        height: calc(var(--size) * 0.75);
         width: 100%;
-        border-radius: calc(20 * 1px);
+        border-radius: calc(var(--radius) * 1px);
         scroll-snap-align: center;
+      }
+
+      .content:first-of-type {
+        scroll-snap-align: start;
+      }
+
+      .content:last-of-type {
+        scroll-snap-align: end;
       }
     </style>
   </head>
 
   <body>
-    <div id="app">
-      <div id="cinnamon" class="cinnamon">
-        <div class="scroller">
-          <div class="content"></div>
-          <div class="content"></div>
-          <div class="content"></div>
-          <div class="content"></div>
-        </div>
+    <div id="cinnamon" class="cinnamon">
+
+      <svg class="scrollbar bar" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+        <path class="scrollbar-thumb" fill="none" stroke-linecap="round" />
+        <path class="scrollbar-track" fill="none" stroke-linecap="round" />
+      </svg>
+
+      <div id="scroller" class="scroller">
+        <div class="content"></div>
+        <div class="content"></div>
+        <div class="content"></div>
+        <div class="content"></div>
       </div>
     </div>
 
