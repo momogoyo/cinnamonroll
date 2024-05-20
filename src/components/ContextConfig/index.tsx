@@ -23,9 +23,9 @@ const ConfigContext = createContext<ConfigContextProps>({
 
 export const ConfigProvider = ({ children, ...userConfig }: React.PropsWithChildren<Config>) => {
   const mergedConfig = { ...defaultConfig, ...userConfig }
-  const [config, setConfig] = useState({ ...mergedConfig, cornerLength: 0 })
+  const [config, setConfig] = useState<Config & { cornerLength: number }>({ ...mergedConfig, cornerLength: 0 })
 
-  const updateConfig = (newConfig: Config) => {
+  const updateConfig = (newConfig: Partial<Config>) => {
     setConfig((prevConfig) => ({ ...prevConfig, ...newConfig }))
   }
 

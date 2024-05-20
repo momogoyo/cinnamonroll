@@ -14,5 +14,5 @@ export interface Config {
 
 export interface ConfigContextProps {
   config: Config & { cornerLength: number }
-  updateConfig: (newConfig: Config) => void
+  updateConfig: (newConfig: Partial<Config>) => void
 }
