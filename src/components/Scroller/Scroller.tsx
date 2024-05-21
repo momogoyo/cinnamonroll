@@ -67,6 +67,12 @@ const Scroller = ({ children }: PropsWithChildren) => {
   )
 }
 
-const ScrollerContainer = styled.div``
+const ScrollerContainer = styled.div`
+  position: relative;
+  width: 100%;
+  padding: 0 0.5rem 0 0;
+  overflow: hidden;
+  resize: both;
+`
 
 export default Scroller
