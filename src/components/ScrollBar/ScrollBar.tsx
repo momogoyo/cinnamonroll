@@ -1,3 +1,5 @@
-const ScrollBar = () => {}
+const ScrollBar = () => {
+  return <></>
+}
 
 export default ScrollBar

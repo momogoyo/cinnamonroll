@@ -1,4 +1,6 @@
 import { ConfigProvider } from './components/ContextConfig'
+import GlobalStyleWrapper from './components/GlobalStyles'
+import Scroller from './components/Scroller'
 
 const App = () => {
   const userConfig = {
@@ -10,8 +12,14 @@ const App = () => {
 
   return (
     <ConfigProvider {...userConfig}>
+      <GlobalStyleWrapper />
       <h1>시나몬 롤</h1>
-      <div></div>
+
+      <Scroller>
+        <ul>
+          <li></li>
+        </ul>
+      </Scroller>
     </ConfigProvider>
   )
 }
