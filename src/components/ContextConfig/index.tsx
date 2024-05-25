@@ -14,16 +14,16 @@ const defaultConfig: Config = {
   finish: 5,
   alpha: 0.75,
   trackAlpha: 0,
-  // cornerLength: 스크롤 thumb 경로의 전체 길이를 설정
+  cornerLength: 0,
 }
 const ConfigContext = createContext<ConfigContextProps>({
-  config: { ...defaultConfig, cornerLength: 0 },
+  config: { ...defaultConfig },
   updateConfig: () => {},
 })
 
 export const ConfigProvider = ({ children, ...userConfig }: React.PropsWithChildren<Config>) => {
   const mergedConfig = { ...defaultConfig, ...userConfig }
-  const [config, setConfig] = useState<Config & { cornerLength: number }>({ ...mergedConfig, cornerLength: 0 })
+  const [config, setConfig] = useState<Config>({ ...mergedConfig })
 
   const updateConfig = (newConfig: Partial<Config>) => {
     setConfig((prevConfig) => ({ ...prevConfig, ...newConfig }))

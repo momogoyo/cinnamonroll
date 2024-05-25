@@ -10,9 +10,10 @@ export interface Config {
   finish?: number
   alpha?: number
   trackAlpha?: number
+  cornerLength?: number
 }
 
 export interface ConfigContextProps {
-  config: Config & { cornerLength: number }
+  config: Config
   updateConfig: (newConfig: Partial<Config>) => void
 }

@@ -35,14 +35,14 @@ const Scroller = ({ children }: PropsWithChildren) => {
       }
     })
 
-    if (contentRef.current && scrollerRef.current && inset !== undefined && thumb !== undefined) {
+    if (contentRef.current && scrollerRef.current) {
       const destination =
         Math.ceil(contentRef.current.scrollHeight) -
         (Math.ceil(contentRef.current.scrollHeight) - scrollerRef.current.offsetHeight) * 0.5 +
-        inset
+        inset!
 
       updateCSSVariable('--destination', `${destination}px`)
-      updateCSSVariable('--start', `${thumb * 2}px`)
+      updateCSSVariable('--start', `${thumb! * 2}px`)
 
       shouldUpdate = true
     }
@@ -58,7 +58,7 @@ const Scroller = ({ children }: PropsWithChildren) => {
 
   return (
     <ScrollerContainer ref={scrollerRef} className="scroller">
-      <ScrollBar />
+      <ScrollBar scrollerRef={scrollerRef} />
 
       <div ref={contentRef} className="content">
         {children}
