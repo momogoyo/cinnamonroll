@@ -1,19 +1,20 @@
 import React, { useRef, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
+import gsap from 'gsap'
 import { useConfig } from '../ContextConfig'
 
 import type { Config } from '../../types'
 
 interface ScrollBarProps {
   scrollerRef: React.RefObject<HTMLDivElement>
+  setStyle: (value: string) => void
 }
 
-const ScrollBar: React.FC<ScrollBarProps> = ({ scrollerRef }) => {
+const ScrollBar: React.FC<ScrollBarProps> = ({ scrollerRef, setStyle }) => {
   const { config, updateConfig } = useConfig()
   const scrollbarRef = useRef<SVGSVGElement>(null)
   const scrollThumbRef = useRef<SVGPathElement>(null)
   const scrollTrackRef = useRef<SVGPathElement>(null)
-  const stylesRef = useRef<HTMLStyleElement>(null)
 
   const generatePath = useCallback(
     (mid: number, innerRadius: number, paddingTop: number, paddingLeft: number) => {
@@ -50,7 +51,30 @@ const ScrollBar: React.FC<ScrollBarProps> = ({ scrollerRef }) => {
     [scrollerRef],
   )
 
-  const initializeTimeline = () => {}
+  const initializeTimeline = (config: Config, scrollTrack: SVGPathElement | null) => {
+    if (scrollerRef.current && scrollTrack) {
+      const frameOne = `${Math.floor(config.scrollPadding! / (scrollerRef.current.scrollHeight - scrollerRef.current.offsetHeight)) * 100}%`
+      const frameTwo = `${Math.floor(config.scrollPadding! / (scrollerRef.current.scrollHeight - scrollerRef.current.offsetHeight)) * 100}%`
+
+      const keyframes = {
+        '0%': { strokeDashOffset: config.thumb! - config.finish! },
+        [frameOne]: { strokeDashOffset: config.cornerLength! * -1 },
+        [frameTwo]: {
+          strokeDashOffset: Math.floor(scrollTrack.getTotalLength()) - config.cornerLength! - config.thumb! * -1,
+        },
+        '100%': { strokeDashOffset: Math.floor(scrollTrack.getTotalLength() - config.finish!) * -1 },
+      }
+
+      gsap.to('.scroll-thumb', {
+        scrollTrigger: {
+          scroller: scrollerRef.current,
+          scrub: true,
+        },
+        ease: 'none',
+        keyframes,
+      })
+    }
+  }
 
   const updateScrollBar = useCallback(
     (
@@ -58,7 +82,6 @@ const ScrollBar: React.FC<ScrollBarProps> = ({ scrollerRef }) => {
       scrollBar: SVGSVGElement | null,
       scrollThumb: SVGPathElement | null,
       scrollTrack: SVGPathElement | null,
-      styles: HTMLStyleElement | null,
       updateConfig: (newConfig: Partial<Config>) => void,
     ) => {
       const mid = config.radius!
@@ -85,8 +108,8 @@ const ScrollBar: React.FC<ScrollBarProps> = ({ scrollerRef }) => {
       setCSSVariables('--start', config.thumb! * 2 + cornerLength!)
       setCSSVariables('--destination', Math.ceil(trackLength) - cornerLength! + config.thumb!)
 
-      if (styles && scrollerRef.current) {
-        styles.innerHTML = `
+      if (scrollerRef.current) {
+        const style = `
           @keyframes scroll {
             0% { stroke-dashoffset: ${config.thumb! - config.finish!}; }
             ${Math.floor((config.scrollPadding! / (scrollerRef.current?.scrollHeight - scrollerRef.current?.offsetHeight)) * 100)}% { stroke-dashoffset: ${cornerLength! * -1}; }
@@ -94,28 +117,40 @@ const ScrollBar: React.FC<ScrollBarProps> = ({ scrollerRef }) => {
             100% { stroke-dashoffset: ${(Math.floor(trackLength) - config.finish!) * -1}; }
           }
         `
+
+        console.log(style)
+        setStyle(style)
       }
     },
-    [generatePath, generatePathCorners, scrollerRef, setCSSVariables],
+    [generatePath, generatePathCorners, scrollerRef, setCSSVariables, setStyle],
   )
 
   useEffect(() => {
     const scrollBar = scrollbarRef.current
     const scrollThumb = scrollThumbRef.current
     const scrollTrack = scrollTrackRef.current
-    const styles = stylesRef.current
 
-    updateScrollBar(config, scrollBar, scrollThumb, scrollTrack, styles, updateConfig)
+    updateScrollBar(config, scrollBar, scrollThumb, scrollTrack, updateConfig)
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        console.log(entry)
+        updateScrollBar(config, scrollBar, scrollThumb, scrollTrack, updateConfig)
+        initializeTimeline
+      }
+    })
+
+    if (scrollerRef.current) {
+      resizeObserver.observe(scrollerRef.current)
+    }
   }, [])
 
   return (
     <>
       <ScrollBarContainer ref={scrollbarRef}>
-        <path ref={scrollThumbRef} className="scroll-thumb" />
-        <path ref={scrollTrackRef} className="scroll-track" />
+        <ScrollBarThumb ref={scrollThumbRef} className="scroll-thumb" fill="none" strokeLinecap="round" />
+        <ScrollBarTrack ref={scrollTrackRef} className="scroll-track" fill="none" strokeLinecap="round" />
       </ScrollBarContainer>
-
-      <style ref={stylesRef}></style>
     </>
   )
 }
@@ -129,6 +164,21 @@ const ScrollBarContainer = styled.svg`
   width: calc(var(--radius) * 2px);
   height: 100%;
   overflow: visible;
+`
+
+const ScrollBarThumb = styled.path`
+  transition: opacity 0.2s;
+
+  stroke-width: calc(var(--stroke-width) * 2px);
+  stroke: hsl(0, 0% 100% / var(--bar-alpha, 0.5)); // 색상 각도, 채도%, 밝기% / 알차 채널값 (투명도)
+  stroke-dasharray: var(--thumb-size) var(--track-length);
+`
+
+const ScrollBarTrack = styled.path`
+  transition: opacity 0.2s;
+
+  stroke-width: calc(var(--stroke-width) * 2px);
+  stroke: hsl(0, 0%, 100% / var(--track-alpha, 0));
 `
 
 export default ScrollBar

@@ -1,0 +1,17 @@
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+body {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  background-color: hsl(0 0% 2%);
+}
+
+.cinnamonroll {
+  position: relative;
+  width: 300px;
+}

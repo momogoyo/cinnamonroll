@@ -1,4 +1,4 @@
-import { PropsWithChildren, useEffect, useRef } from 'react'
+import { PropsWithChildren, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 import { useConfig } from '../ContextConfig'
@@ -10,6 +10,7 @@ const Scroller = ({ children }: PropsWithChildren) => {
   const { config, updateConfig } = useConfig()
   const scrollerRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
+  const [style, setStyle] = useState<string>('')
 
   const updateCSSVariable = (variable: string, value: string) => {
     if (!scrollerRef.current) return
@@ -58,11 +59,11 @@ const Scroller = ({ children }: PropsWithChildren) => {
 
   return (
     <ScrollerContainer ref={scrollerRef} className="scroller">
-      <ScrollBar scrollerRef={scrollerRef} />
+      <ScrollBar scrollerRef={scrollerRef} setStyle={setStyle} />
 
-      <div ref={contentRef} className="content">
-        {children}
-      </div>
+      {children}
+
+      <style>{style}</style>
     </ScrollerContainer>
   )
 }
@@ -70,9 +71,9 @@ const Scroller = ({ children }: PropsWithChildren) => {
 const ScrollerContainer = styled.div`
   position: relative;
   width: 100%;
-  padding: 0 0.5rem 0 0;
-  overflow: hidden;
+  aspect-ratio: 3 / 4;
   resize: both;
+  overflow: hidden;
 `
 
 export default Scroller

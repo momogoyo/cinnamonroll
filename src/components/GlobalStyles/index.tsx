@@ -4,7 +4,7 @@ import { useConfig } from '../ContextConfig'
 import type { Config } from '../../types'
 
 interface GlobalStyleProps {
-  config: Config & { cornerLength: number }
+  config: Config
 }
 
 const GlobalStyles = createGlobalStyle<GlobalStyleProps>`
