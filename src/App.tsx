@@ -20,19 +20,19 @@ const App = () => {
 
       <div className="cinnamonroll">
         <Scroller>
-          <UI padding={userConfig.scrollPadding}>
+          <UL padding={userConfig.scrollPadding}>
             <LI></LI>
             <LI></LI>
             <LI></LI>
             <LI></LI>
-          </UI>
+          </UL>
         </Scroller>
       </div>
     </ConfigProvider>
   )
 }
 
-const UI = styled.ul<{ padding: number }>`
+const UL = styled.ul<{ padding: number }>`
   list-style: none;
   scrollbar-width: 0;
   scrollbar-width: none;
@@ -41,6 +41,7 @@ const UI = styled.ul<{ padding: number }>`
   scroll-behavior: smooth;
 
   width: 100%;
+  max-height: 500px;
   height: 100%;
   overflow: auto;
   background-color: hsl(180 0% 33%);

@@ -71,8 +71,6 @@ const Scroller = ({ children }: PropsWithChildren) => {
 const ScrollerContainer = styled.div`
   position: relative;
   width: 100%;
-  aspect-ratio: 3 / 4;
-  resize: both;
   overflow: hidden;
 `
 
