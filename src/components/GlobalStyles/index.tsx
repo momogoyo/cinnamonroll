@@ -15,7 +15,7 @@ const GlobalStyles = createGlobalStyle<GlobalStyleProps>`
     --bg: hsl(180 0% 33%);
     --bar: hsl(0 0% 100% / 0.5);
     --panel: hsl(20 60% 50%);
-    --scroller: scroll;
+    timeline-scope: --scroller;
   }
 `
 

@@ -1,9 +1,13 @@
 import React, { useRef, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
 import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
 import { useConfig } from '../ContextConfig'
 
 import type { Config } from '../../types'
+
+gsap.registerPlugin(ScrollTrigger)
 
 interface ScrollBarProps {
   scrollerRef: React.RefObject<HTMLDivElement>
@@ -24,7 +28,7 @@ const ScrollBar: React.FC<ScrollBarProps> = ({ scrollerRef, setStyle }) => {
           : `a${innerRadius},${innerRadius} 0 0 1 ${innerRadius} ${innerRadius}`
       }`
     },
-    [config.trail],
+    [config.trail, config.inset, config.stroke],
   )
 
   const generatePathCorners = useCallback(
@@ -51,30 +55,37 @@ const ScrollBar: React.FC<ScrollBarProps> = ({ scrollerRef, setStyle }) => {
     [scrollerRef],
   )
 
-  const initializeTimeline = (config: Config, scrollTrack: SVGPathElement | null) => {
-    if (scrollerRef.current && scrollTrack) {
-      const frameOne = `${Math.floor(config.scrollPadding! / (scrollerRef.current.scrollHeight - scrollerRef.current.offsetHeight)) * 100}%`
-      const frameTwo = `${Math.floor(config.scrollPadding! / (scrollerRef.current.scrollHeight - scrollerRef.current.offsetHeight)) * 100}%`
+  const initializeTimeline = useCallback(
+    (config: Config, scrollTrack: SVGPathElement | null) => {
+      if (scrollerRef.current && scrollTrack) {
+        const frameOne = `${Math.floor(config.scrollPadding! / (scrollerRef.current.scrollHeight - scrollerRef.current.offsetHeight)) * 100}%`
+        const frameTwo = `${Math.floor(config.scrollPadding! / (scrollerRef.current.scrollHeight - scrollerRef.current.offsetHeight)) * 100}%`
 
-      const keyframes = {
-        '0%': { strokeDashOffset: config.thumb! - config.finish! },
-        [frameOne]: { strokeDashOffset: config.cornerLength! * -1 },
-        [frameTwo]: {
-          strokeDashOffset: Math.floor(scrollTrack.getTotalLength()) - config.cornerLength! - config.thumb! * -1,
-        },
-        '100%': { strokeDashOffset: Math.floor(scrollTrack.getTotalLength() - config.finish!) * -1 },
+        const keyframes = {
+          '0%': { strokeDashOffset: config.thumb! - config.finish! },
+          [frameOne]: { strokeDashOffset: config.cornerLength! * -1 },
+          [frameTwo]: {
+            strokeDashOffset: Math.floor(scrollTrack.getTotalLength()) - config.cornerLength! - config.thumb! * -1,
+          },
+          '100%': { strokeDashOffset: Math.floor(scrollTrack.getTotalLength() - config.finish!) * -1 },
+        }
+
+        gsap.to(scrollThumbRef.current, {
+          scrollTrigger: {
+            trigger: scrollerRef.current,
+            scroller: scrollerRef.current,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: true,
+          },
+          strokeDasharray: config.thumb! - config.finish!,
+          ease: 'none',
+          keyframes,
+        })
       }
-
-      gsap.to('.scroll-thumb', {
-        scrollTrigger: {
-          scroller: scrollerRef.current,
-          scrub: true,
-        },
-        ease: 'none',
-        keyframes,
-      })
-    }
-  }
+    },
+    [scrollerRef],
+  )
 
   const updateScrollBar = useCallback(
     (
@@ -118,7 +129,6 @@ const ScrollBar: React.FC<ScrollBarProps> = ({ scrollerRef, setStyle }) => {
           }
         `
 
-        console.log(style)
         setStyle(style)
       }
     },
@@ -131,13 +141,15 @@ const ScrollBar: React.FC<ScrollBarProps> = ({ scrollerRef, setStyle }) => {
     const scrollTrack = scrollTrackRef.current
 
     updateScrollBar(config, scrollBar, scrollThumb, scrollTrack, updateConfig)
+    if (!CSS.supports('(animation-timeline: scroll())')) {
+      initializeTimeline(config, scrollTrack)
+    }
 
     const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        console.log(entry)
+      entries.forEach(() => {
         updateScrollBar(config, scrollBar, scrollThumb, scrollTrack, updateConfig)
         initializeTimeline
-      }
+      })
     })
 
     if (scrollerRef.current) {
@@ -159,26 +171,28 @@ const ScrollBarContainer = styled.svg`
   position: absolute;
   top: 0;
   bottom: 0;
-  right: 0.5rem;
+  right: 0;
   pointer-events: none;
   width: calc(var(--radius) * 2px);
   height: 100%;
-  overflow: visible;
+  overflow: visible !important;
 `
 
 const ScrollBarThumb = styled.path`
   transition: opacity 0.2s;
 
-  stroke-width: calc(var(--stroke-width) * 2px);
-  stroke: hsl(0, 0% 100% / var(--bar-alpha, 0.5)); // 색상 각도, 채도%, 밝기% / 알차 채널값 (투명도)
+  stroke-width: calc(var(--stroke-width) * 1px);
+  stroke: hsl(
+    0 0% 100% / var(--bar-alpha, 0.5)
+  ); // 색상 각도, 채도%, 밝기% / 알차 채널값 (투명도) - rgba(255, 255, 255, 0.75) / hsl(0 0% 100% / var(--track-alpha, 0))
   stroke-dasharray: var(--thumb-size) var(--track-length);
 `
 
 const ScrollBarTrack = styled.path`
   transition: opacity 0.2s;
 
-  stroke-width: calc(var(--stroke-width) * 2px);
-  stroke: hsl(0, 0%, 100% / var(--track-alpha, 0));
+  stroke-width: calc(var(--stroke-width) * 1px);
+  stroke: hsl(0 0% 100% / var(--track-alpha, 0));
 `
 
 export default ScrollBar

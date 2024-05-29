@@ -31,7 +31,7 @@ const Scroller = ({ children }: PropsWithChildren) => {
 
     Object.entries(cssVariables).forEach(([variable, value]) => {
       if (value !== undefined) {
-        updateCSSVariable(variable, `${value}px`)
+        updateCSSVariable(variable, `${value}`)
         shouldUpdate = true
       }
     })
@@ -69,7 +69,6 @@ const Scroller = ({ children }: PropsWithChildren) => {
 }
 
 const ScrollerContainer = styled.div`
-  position: relative;
   width: 100%;
   overflow: hidden;
 `
